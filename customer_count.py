@@ -26,15 +26,21 @@ def calculate_customer_avg():
     customer_count = customer_count.loc[customer_count["hour"] == "201905"]
     print(customer_count)
 
-    cell_id_mean = customer_count.groupby(["cell_id"])["cx_cnt"].mean()
+    cell_id_mean = customer_count.groupby(["cell_id"])["cx_cnt"].mean().to_frame()
     print(f"Cell mean {cell_id_mean}")
 
     site_info = data_read("datathon.cell.details.csv")
-    cell_site_info = pd.merge(site_info, cell_id_mean, how="left", on=["cell_id"])
+    cell_site_info = pd.merge(site_info, cell_id_mean, how="inner", on=["cell_id"])
     print(cell_site_info)
 
-    site_mean = cell_site_info.groupby(["site_id"])["cx_cnt"].mean()
-    print(f"Site mean {site_mean}")
+    site_mean = cell_site_info.groupby(["site_id"])["cx_cnt"].mean().to_frame()
+    print(f"{site_mean}")
+
+    print(f"######################")
+    site_mean.reset_index(level=0, inplace=True)
+    site_mean = site_mean.rename(columns={"site_id": "SITE_ID", "cx_cnt": "AVG(TOTAL_COUNT)"})
+    print(site_mean)
+    site_mean.to_csv("question_1_a_team_5.csv", index=False)
 
 
 def main():
